@@ -17,6 +17,7 @@
     <main class="main">
       <header class="topbar">
         <div class="global-search"><span>⌕</span><input id="globalSearch" autocomplete="off" placeholder="搜索项目、客户、达人、发票、业务记录…"><kbd>⌘ K</kbd><div id="searchResults" class="search-results"></div></div>
+        <div class="language-switch" role="group" aria-label="语言切换"><button type="button" data-locale="zh">中</button><span aria-hidden="true">|</span><button type="button" data-locale="en">EN</button></div>
         <div class="today">2026 年 10 月 1 日</div>
       </header>
       <div id="workspace" aria-live="polite"></div>
@@ -27,6 +28,7 @@
   <div id="overlayHost"></div>
   <div id="toast" class="toast" role="status"></div>
   <script src="data.js"></script>
+  <script src="i18n.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

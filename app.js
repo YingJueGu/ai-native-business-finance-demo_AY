@@ -1,5 +1,6 @@
 (function () {
   const D = window.BusinessDemoData;
+  const I = window.DemoI18n;
   const workspace = document.getElementById("workspace");
   const nav = document.getElementById("primaryNav");
   const toast = document.getElementById("toast");
@@ -42,7 +43,7 @@
   const visibleProjectIds = () => new Set(D.getVisibleProjectIds());
   const activeProjects = () => visibleProjects().filter(p => p.status !== "completed");
   const unreadCount = () => D.state.communications.filter(c => visibleProjectIds().has(c.projectId) && c.unread).length;
-  const showToast = text => { toast.textContent = text; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 2600); };
+  const showToast = text => { toast.textContent = I.translate(text); toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 2600); };
   const clearGlobalSearch = () => { globalSearch.value=""; searchResults.innerHTML=""; searchResults.classList.remove("open"); };
   const go = (route, extras = {}) => { Object.assign(ui, extras, { route }); render(); window.scrollTo(0, 0); };
   const statusPill = (text, tone = "blue") => `<span class="pill ${tone}">${text}</span>`;
@@ -381,15 +382,16 @@
     const pending=Object.values(D.state.proposedUpdates).filter(x=>visibleProjectIds().has(x.projectId)).length;
     const alerts=D.state.receivables.filter(x=>visibleProjectIds().has(x.projectId)&&x.status==="逾期").length+D.state.cashTransactions.filter(x=>visibleProjectIds().has(x.projectId)&&x.status==="未匹配").length;
     const badge=document.getElementById("agentBadge"), count=pending||alerts; badge.textContent=count?Math.min(count,9):""; badge.classList.toggle("show",count>0);
+    I.apply(agentPanelElement);
   }
 
   function answerAgent(text) {
     const normalized=text.toLowerCase(), p=ui.route==="project"?project(ui.selectedProjectId):project("proj-a"), change=D.state.profitChanges[p.id];
-    if (/mia|九千|9000|差旅|15\s*号/.test(normalized)) { D.interpretAgentInput(text,ui.agentInputMode); ui.activeProposedId="agent-mia-a"; ui.agentStage="interpretation"; return; }
-    if (/利润|盈利|下降/.test(normalized)) ui.agentAnswer=`<b>${p.name}</b><p>当前项目利润为 <strong>${money(D.calculateProjectProfit(p))}</strong>，利润率 ${pct(D.calculateProjectMargin(p))}。</p>${change?`<p>最近下降 ${money(Math.abs(change.delta))}，原因是 Mia Notes 合作金额增加 ${money(500)}。</p>`:`<p>当前没有已确认的利润变动。</p>`}`;
-    else if (/现金|够不够|流入|流出/.test(normalized)) ui.agentAnswer=isOwner()?`<b>未来三个月现金可覆盖预计支出</b><p>当前现金 ${money(D.state.currentCash)}；未来 30 天预计流入 ${money(D.state.cashForecasts[0].inflow)}，预计流出 ${money(D.state.cashForecasts[0].outflow)}。</p>`:`<b>我的项目资金事项</b><p>当前范围有 ${teamExceptions().length} 项回款、付款、发票或流水事项需要跟进。</p>`;
-    else if (/表现|达人/.test(normalized)) {const c=creator("creator-mia"),contents=D.state.contents.filter(x=>x.creatorId===c.id);ui.agentAnswer=`<b>${c.displayName} 最近合作表现</b><p>共有 ${D.state.collaborations.filter(x=>x.creatorId===c.id&&visibleProjectIds().has(x.projectId)).length} 次相关合作，${contents.length?"已有内容表现记录。":"当前项目内容尚未发布。"}</p>`;}
-    else if (/风险|注意/.test(normalized)) ui.agentAnswer=`<b>当前项目风险</b><p>${visibleProjects().filter(x=>x.risk).length} 个可见项目标记为风险；另有 ${teamExceptions().length} 项财务事项需要跟进。</p>`;
+    if (/mia|九千|9000|差旅|15\s*号|nine thousand|travel|oct(?:ober)?\s*15|confirmed/.test(normalized)) { D.interpretAgentInput(text,ui.agentInputMode); ui.activeProposedId="agent-mia-a"; ui.agentStage="interpretation"; return; }
+    if (/利润|盈利|下降|profit|margin|decline/.test(normalized)) ui.agentAnswer=`<b>${p.name}</b><p>当前项目利润为 <strong>${money(D.calculateProjectProfit(p))}</strong>，利润率 ${pct(D.calculateProjectMargin(p))}。</p>${change?`<p>最近下降 ${money(Math.abs(change.delta))}，原因是 Mia Notes 合作金额增加 ${money(500)}。</p>`:`<p>当前没有已确认的利润变动。</p>`}`;
+    else if (/现金|够不够|流入|流出|cash|inflow|outflow|enough/.test(normalized)) ui.agentAnswer=isOwner()?`<b>未来三个月现金可覆盖预计支出</b><p>当前现金 ${money(D.state.currentCash)}；未来 30 天预计流入 ${money(D.state.cashForecasts[0].inflow)}，预计流出 ${money(D.state.cashForecasts[0].outflow)}。</p>`:`<b>我的项目资金事项</b><p>当前范围有 ${teamExceptions().length} 项回款、付款、发票或流水事项需要跟进。</p>`;
+    else if (/表现|达人|performance|creator/.test(normalized)) {const c=creator("creator-mia"),contents=D.state.contents.filter(x=>x.creatorId===c.id);ui.agentAnswer=`<b>${c.displayName} 最近合作表现</b><p>共有 ${D.state.collaborations.filter(x=>x.creatorId===c.id&&visibleProjectIds().has(x.projectId)).length} 次相关合作，${contents.length?"已有内容表现记录。":"当前项目内容尚未发布。"}</p>`;}
+    else if (/风险|注意|risk|attention/.test(normalized)) ui.agentAnswer=`<b>当前项目风险</b><p>${visibleProjects().filter(x=>x.risk).length} 个可见项目标记为风险；另有 ${teamExceptions().length} 项财务事项需要跟进。</p>`;
     else ui.agentAnswer="<b>我已收到</b><p>这个 Demo 当前可以处理 Mia 合作更新、项目利润、现金流、达人表现和项目风险。</p>";
     ui.agentStage="answer";
   }
@@ -580,6 +582,7 @@
     if(ui.modal.type==="request") { const request=item("businessRequests",ui.modal.id), applicant=item("users",request.applicantUserId); title="费用报销申请"; body=`<div class="request-hero"><span>${statusPill(({draft:"草稿",pending_approval:"等待审批",approved:"已批准",needs_info:"需补充资料"}[request.status]||request.status),request.status==="approved"?"green":"orange")}</span><strong>${money(request.amount)}</strong></div><dl class="modal-info"><div><dt>申请人</dt><dd>${applicant.name}</dd></div><div><dt>项目</dt><dd>${project(request.projectId).name}</dd></div><div><dt>费用说明</dt><dd>${request.description}</dd></div><div><dt>当前审批人</dt><dd>${item("users",request.currentApproverUserId).name}</dd></div></dl><h3>费用明细</h3>${simpleTable(["说明","金额","费用类别"],request.lineItems.map(line=>[line.description,money(line.amount),line.costCategory]))}<h3>上传资料</h3>${request.documentIds.map(id=>`<button class="document-link" data-document-id="${id}">${item("documents",id)?.fileName}</button>`).join("")}${isOwner()&&request.status==="pending_approval"?`<div class="actions"><button class="btn secondary" data-action="return-request" data-request-id="${request.id}">退回补充</button><button class="btn agent" data-action="approve-request" data-request-id="${request.id}">批准</button></div>`:""}`; }
     if(ui.modal.type==="boost") { const content=item("contents",ui.modal.id,"contentId"),perf=D.state.performanceSnapshots.find(x=>x.contentId===content.contentId); title="投流功能演示入口"; body=`<dl class="modal-info"><div><dt>内容</dt><dd>${creator(content.creatorId).displayName} · ${content.contentType}</dd></div><div><dt>平台</dt><dd>${content.platform}</dd></div><div><dt>当前浏览 / 播放</dt><dd>${perf?number(perf.views):"暂无数据"}</dd></div></dl><p class="confirmation-note">本轮仅提供入口，不会改变预算、成本或项目利润。</p>`; }
     host.innerHTML=`<div class="overlay"><aside class="drawer" role="dialog" aria-modal="true"><div class="drawer-head"><h2>${title}</h2><button data-action="close-modal">×</button></div><div class="drawer-body">${body}</div></aside></div>`;
+    I.apply(host);
   }
 
   function render() {
@@ -588,13 +591,14 @@
     workspace.innerHTML = views[ui.route]();
     renderAgentPanel();
     renderModal();
+    I.apply(document);
   }
 
   function renderSearchResults(query) {
     const q=query.trim().toLowerCase(); if(!q){searchResults.innerHTML="";searchResults.classList.remove("open");return;}
     const ids=visibleProjectIds(), projects=visibleProjects().filter(x=>x.name.toLowerCase().includes(q)), customerIds=new Set(visibleProjects().map(x=>x.customerId)), customers=D.state.customers.filter(x=>customerIds.has(x.id)&&x.name.toLowerCase().includes(q)), creatorIds=new Set(D.state.collaborations.filter(x=>ids.has(x.projectId)).map(x=>x.creatorId)), creators=D.state.creators.filter(x=>(isOwner()||creatorIds.has(x.id))&&x.displayName.toLowerCase().includes(q));
     const rows=[...projects.map(x=>["项目",x.name,`data-project-id="${x.id}"`]),...customers.map(x=>["客户",x.name,`data-customer-id="${x.id}"`]),...creators.map(x=>["达人",x.displayName,`data-creator-id="${x.id}"`])].slice(0,8);
-    searchResults.innerHTML=rows.length?rows.map(([type,label,attr])=>`<button ${attr}><span>${type}</span><b>${label}</b><i>↗</i></button>`).join(""):`<div class="search-empty">没有匹配结果</div>`; searchResults.classList.add("open");
+    searchResults.innerHTML=rows.length?rows.map(([type,label,attr])=>`<button ${attr}><span>${type}</span><b>${label}</b><i>↗</i></button>`).join(""):`<div class="search-empty">没有匹配结果</div>`; searchResults.classList.add("open"); I.apply(searchResults);
   }
 
   document.addEventListener("input", event => {
@@ -670,9 +674,9 @@
     if (action === "submit-work") {
       ui.workInput=document.getElementById("workInput")?.value.trim()||ui.workInput;
       if(!ui.workInput&&!ui.attachments.length){showToast("请先输入说明或添加文件");return;}
-      if(/报销|2514|票据|交通.*物料/.test(ui.workInput)){ui.workStage="reimbursement";return render();}
-      if(/合同|建.*项目|新建项目/.test(ui.workInput)&&isOwner()){ui.workStage="contract";return render();}
-      if(ui.attachments.length||/整理|归档|资料/.test(ui.workInput)){prepareDocumentDrafts();return render();}
+      if(/报销|2514|票据|交通.*物料|reimburse|expense|receipt|transport.*material/i.test(ui.workInput)){ui.workStage="reimbursement";return render();}
+      if(/合同|建.*项目|新建项目|contract|create.*project|new project/i.test(ui.workInput)&&isOwner()){ui.workStage="contract";return render();}
+      if(ui.attachments.length||/整理|归档|资料|organize|file|document|archive/i.test(ui.workInput)){prepareDocumentDrafts();return render();}
       ui.workStage="answer";ui.agentAnswer=ui.attachments.length?"已收到文件，请告诉我它对应哪个项目，以及希望我怎么处理。":"我已收到。当前工作台可演示费用报销和合同建项目。";return render();
     }
     if (action === "edit-documents") { document.querySelector("[data-document-project]")?.focus(); showToast("可以直接修改每份资料的关联项目"); return; }
@@ -730,7 +734,7 @@
     const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
     if(!SpeechRecognition){ui.voiceMessage="当前浏览器暂不支持语音识别，请使用文字输入。";ui.agentStage="idle";showToast(ui.voiceMessage);return targetMode==="agent"?renderAgentPanel():render();}
     voiceTarget=targetMode;voiceListeningWanted=true;voiceFinal=targetMode==="agent"?ui.agentInput:ui.workInput;voiceRestartCount=0;
-    recognition=new SpeechRecognition(); recognition.lang="zh-CN"; recognition.interimResults=true; recognition.continuous=true;
+    recognition=new SpeechRecognition(); recognition.lang=I.locale()==="en"?"en-US":"zh-CN"; recognition.interimResults=true; recognition.continuous=true;
     ui.agentStage="listening";ui.voiceMessage="";targetMode==="agent"?renderAgentPanel():render();
     recognition.onresult=event=>{let interim="";for(let i=event.resultIndex;i<event.results.length;i++){const text=event.results[i][0].transcript;if(event.results[i].isFinal)voiceFinal+=text;else interim+=text;}if(voiceTarget==="agent"){ui.agentInput=voiceFinal+interim;ui.agentInputMode="voice";renderAgentPanel();}else{ui.workInput=voiceFinal+interim;render();}};
     recognition.onerror=event=>{if(event.error!=="no-speech")voiceListeningWanted=false;ui.voiceMessage=event.error==="not-allowed"?"未获得麦克风权限，请使用文字输入。":"语音识别暂时中断，请重试或使用文字输入。";if(!voiceListeningWanted)ui.agentStage="idle";showToast(ui.voiceMessage);};
@@ -740,6 +744,7 @@
 
   document.addEventListener("keydown",event=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==="k"){event.preventDefault();globalSearch.focus();}});
   document.addEventListener("click",event=>{if(!event.target.closest(".global-search"))searchResults.classList.remove("open");});
+  document.addEventListener("demo:localechange",()=>render());
 
   let dragStart=null,orbMoved=false;
   agentOrb.dataset.action="toggle-agent";
