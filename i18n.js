@@ -23,7 +23,7 @@
     "允许自动更新": "Automatic updates allowed",
     "不含税收入 + 公司保留返佣 − 各项成本": "Net revenue + retained rebate − all costs",
     "当前没有已确认的利润变动。": "There are no confirmed profit changes.",
-    "AI Native 业财经营系统": "AI-Native Business & Finance Operating System",
+    "AI Native 业财经营系统": "AI Native Business & Finance Operating System",
     "老板工作台": "Owner Workspace",
     "未来 3 个月期末现金": "Three-Month Closing Cash",
     "应收、应付、发票、资金匹配与异常处理": "AR, AP, invoices, cash matching, and exception handling.",

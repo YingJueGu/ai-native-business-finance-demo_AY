@@ -60,8 +60,7 @@
 
   function pageTitle(title, subtitle, actions = "") {
     const topLevel=["home","projects","communications","partners","finance","reports"].includes(ui.route);
-    const notes={home:"今天适合把窗开一会儿。",projects:"风从很远的地方来，也会经过今天。",communications:"黄昏只是天色慢了一点。",partners:"有些路，不赶时间才看得见风景。",finance:"雨停以后，城市会亮一点。",reports:"树影摇动时，午后也有了形状。"};
-    return `<div class="page-title ${topLevel?"page-hero":""}"><div><h1>${title}</h1>${subtitle ? `<p>${subtitle}</p>` : ""}</div>${topLevel?`<aside class="daily-note"><small>10 月 1 日</small><span>${notes[ui.route]}</span></aside>`:""}${actions}</div>`;
+    return `<div class="page-title ${topLevel?"page-hero":""}"><div><h1>${title}</h1>${subtitle ? `<p>${subtitle}</p>` : ""}</div>${actions}</div>`;
   }
 
   function metric(label, value, note = "", tone = "") {
