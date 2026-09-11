@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Native 业财经营系统</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">AI Native<br>业财经营系统</div>
+      <nav id="primaryNav" class="nav" aria-label="主导航"></nav>
+      <div class="profile" id="userProfile"><span class="avatar" id="profileAvatar">J</span><div><b id="profileName">Jessica</b><small id="profileRole">老板视角</small></div><button class="role-switch" data-action="toggle-role" aria-label="切换角色">切换</button><button class="settings-button" data-route="settings" aria-label="打开设置">⚙</button></div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="global-search"><span>⌕</span><input id="globalSearch" autocomplete="off" placeholder="搜索项目、客户、达人、发票、业务记录…"><kbd>⌘ K</kbd><div id="searchResults" class="search-results"></div></div>
+        <div class="today">2026 年 10 月 1 日</div>
+      </header>
+      <div id="workspace" aria-live="polite"></div>
+    </main>
+  </div>
+  <button id="agentOrb" class="agent-orb" aria-label="打开小A智能业务助手"><span>小A</span><i id="agentBadge"></i><em>告诉小A你要做什么</em></button>
+  <aside id="agentPanel" class="agent-panel" aria-live="polite"></aside>
+  <div id="overlayHost"></div>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
